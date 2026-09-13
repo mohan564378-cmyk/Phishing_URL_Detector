@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Scan Result - Phishing URL Detector</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     NAVIGATION BAR
+========================================== -->
+
+<nav class="navbar">
+
+    <div class="nav-title">
+        🛡️ Phishing URL Detector
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/">Scanner</a>
+
+        <a href="/history">History</a>
+
+        <a href="/dashboard">Dashboard</a>
+
+        <a href="/about">About</a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- ==========================================
+     MAIN CONTAINER
+========================================== -->
+
+<div class="container">
+
+
+    <!-- ======================================
+         RESULT CARD
+    ======================================= -->
+
+    <div class="result-card">
+
+
+        <!-- STATUS ICON -->
+
+        <div class="status-icon">
+
+            {% if status == "Likely Safe" %}
+
+                ✅
+
+            {% elif status == "Suspicious" %}
+
+                ⚠️
+
+            {% else %}
+
+                🚨
+
+            {% endif %}
+
+        </div>
+
+
+
+        <!-- STATUS -->
+
+        {% if status == "Likely Safe" %}
+
+            <h1 class="safe">
+                {{ status }}
+            </h1>
+
+        {% elif status == "Suspicious" %}
+
+            <h1 class="suspicious">
+                {{ status }}
+            </h1>
+
+        {% else %}
+
+            <h1 class="danger">
+                {{ status }}
+            </h1>
+
+        {% endif %}
+
+
+
+        <!-- ==================================
+             SCANNED URL
+        =================================== -->
+
+        <div class="url-box">
+
+            <strong>
+                Scanned URL:
+            </strong>
+
+            <p>
+                {{ url }}
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================================
+             RISK SCORE
+        =================================== -->
+
+        <h2>
+            Risk Score
+        </h2>
+
+
+        <div class="risk-score">
+
+            {{ risk_score }}%
+
+        </div>
+
+
+
+        <!-- ==================================
+             RISK BAR
+        =================================== -->
+
+        <div class="risk-bar">
+
+            <div class="risk-fill"
+                 style="width: {{ risk_score }}%;">
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================
+             RESULT MESSAGE
+        =================================== -->
+
+        {% if risk_score < 30 %}
+
+            <div class="safe-message">
+
+                <h3>
+                    ✅ Low Risk
+                </h3>
+
+                <p>
+                    This URL appears to have a low
+                    phishing risk based on the
+                    current detection rules and
+                    machine learning model.
+                </p>
+
+            </div>
+
+
+        {% elif risk_score < 70 %}
+
+            <div class="suspicious-message">
+
+                <h3>
+                    ⚠️ Medium Risk
+                </h3>
+
+                <p>
+                    This URL contains some
+                    characteristics that may require
+                    additional caution.
+                </p>
+
+            </div>
+
+
+        {% else %}
+
+            <div class="danger-message">
+
+                <h3>
+                    🚨 High Risk
+                </h3>
+
+                <p>
+                    This URL has characteristics
+                    associated with potentially
+                    unsafe or phishing-like URLs.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+
+        <!-- ==================================
+             DETECTION REASONS
+        =================================== -->
+
+        <h2>
+            Detection Reasons
+        </h2>
+
+
+        {% if reasons %}
+
+            <ul class="reasons-list">
+
+                {% for reason in reasons %}
+
+                    <li>
+                        🔍 {{ reason }}
+                    </li>
+
+                {% endfor %}
+
+            </ul>
+
+        {% else %}
+
+            <p>
+                No specific warning indicators
+                were detected.
+            </p>
+
+        {% endif %}
+
+
+
+        <!-- ==================================
+             FEATURE ANALYSIS
+        =================================== -->
+
+        <h2 style="margin-top: 30px;">
+            URL Feature Analysis
+        </h2>
+
+
+        {% if features %}
+
+            <table class="feature-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Feature
+                        </th>
+
+                        <th>
+                            Value
+                        </th>
+
+                        <th>
+                            Analysis
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for feature in features %}
+
+                        <tr>
+
+                            <td>
+                                {{ feature[0] }}
+                            </td>
+
+                            <td>
+                                {{ feature[1] }}
+                            </td>
+
+                            <td>
+                                {{ feature[2] }}
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        {% else %}
+
+            <p>
+                No feature information available.
+            </p>
+
+        {% endif %}
+
+
+
+        <!-- ==================================
+             SAFETY INFORMATION
+        =================================== -->
+
+        <div class="safe-message"
+             style="margin-top: 25px;">
+
+            <h3>
+                🛡️ Safety Information
+            </h3>
+
+            <p>
+                This system provides an educational
+                risk assessment. It does not guarantee
+                that a URL is completely safe or
+                malicious.
+            </p>
+
+            <p>
+                Avoid entering passwords or other
+                sensitive information on websites
+                that you do not trust.
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================================
+             BUTTONS
+        =================================== -->
+
+        <div class="result-buttons">
+
+            <a href="/">
+                <button type="button">
+                    🔎 Scan Another URL
+                </button>
+            </a>
+
+
+            <a href="/history">
+                <button type="button">
+                    📋 View History
+                </button>
+            </a>
+
+
+            <a href="/dashboard">
+                <button type="button">
+                    📊 Dashboard
+                </button>
+            </a>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

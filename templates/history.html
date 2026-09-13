@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Scan History</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+    <div class="nav-title">
+        🔐 Phishing URL Detector
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">
+            🏠 Home
+        </a>
+
+        <a href="/">
+            🔍 Scanner
+        </a>
+
+        <a href="/history">
+            📋 History
+        </a>
+
+        <a href="/dashboard">
+            📊 Dashboard
+        </a>
+
+        <a href="/about">
+            ℹ️ About
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+    <h1>
+        📋 Scan History
+    </h1>
+
+    <p>
+        Previously scanned URLs
+    </p>
+
+
+    {% if scans %}
+
+
+    <!-- ================= HISTORY TABLE ================= -->
+
+    <div class="result-card">
+
+        <table class="feature-table">
+
+            <tr>
+
+                <th>
+                    ID
+                </th>
+
+                <th>
+                    URL
+                </th>
+
+                <th>
+                    Risk Score
+                </th>
+
+                <th>
+                    Result
+                </th>
+
+                <th>
+                    Scan Time
+                </th>
+
+            </tr>
+
+
+            {% for scan in scans %}
+
+            <tr>
+
+                <td>
+                    {{ scan[0] }}
+                </td>
+
+                <td class="history-url">
+                    {{ scan[1] }}
+                </td>
+
+                <td>
+                    {{ scan[2] }}/100
+                </td>
+
+                <td>
+
+                    {% if scan[3] == "Likely Safe" %}
+
+                        🟢 {{ scan[3] }}
+
+                    {% elif scan[3] == "Suspicious" %}
+
+                        🟠 {{ scan[3] }}
+
+                    {% else %}
+
+                        🔴 {{ scan[3] }}
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+                    {{ scan[4] }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+    </div>
+
+
+    <!-- ================= CLEAR HISTORY ================= -->
+
+    <form
+        action="/clear-history"
+        method="POST"
+        onsubmit="return confirm('Are you sure you want to clear all scan history?');">
+
+        <button type="submit">
+            🗑️ Clear Scan History
+        </button>
+
+    </form>
+
+
+    {% else %}
+
+
+    <!-- ================= EMPTY HISTORY ================= -->
+
+    <div class="result-card">
+
+        <h2>
+            📭 No Scan History
+        </h2>
+
+        <p>
+            No URL scans are currently stored.
+        </p>
+
+    </div>
+
+
+    {% endif %}
+
+
+    <br>
+
+
+    <!-- ================= NAVIGATION BUTTONS ================= -->
+
+    <a href="/">
+
+        <button type="button">
+            🏠 Back to Scanner
+        </button>
+
+    </a>
+
+
+    <a href="/dashboard">
+
+        <button type="button">
+            📊 Dashboard
+        </button>
+
+    </a>
+
+
+</div>
+
+</body>
+
+</html>

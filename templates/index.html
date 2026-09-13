@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Phishing URL Detector</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+    <div class="nav-title">
+        🔐 Phishing URL Detector
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">
+            🏠 Home
+        </a>
+
+        <a href="/">
+            🔍 Scanner
+        </a>
+
+        <a href="/history">
+            📋 History
+        </a>
+
+        <a href="/dashboard">
+            📊 Dashboard
+        </a>
+
+        <a href="/about">
+            ℹ️ About
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>
+            🔐 Phishing URL Detection System
+        </h1>
+
+        <p>
+            Analyze a URL and estimate its security risk
+            using rule-based detection and machine learning.
+        </p>
+
+    </div>
+
+
+    <!-- ================= SCANNER ================= -->
+
+    <div class="scanner-card">
+
+        <h2>
+            🔍 Scan a URL
+        </h2>
+
+        <p>
+            Enter a URL below to analyze its
+            security characteristics.
+        </p>
+
+
+        <form
+            action="/scan"
+            method="POST"
+            onsubmit="return validateURL();">
+
+
+            <input
+                type="text"
+                id="urlInput"
+                name="url"
+                placeholder="https://example.com"
+                autocomplete="off"
+                required>
+
+
+            <button
+                type="submit"
+                id="scanButton">
+
+                🔍 Scan URL
+
+            </button>
+
+
+            <div
+                id="loadingMessage"
+                class="loading-message">
+
+                ⏳ Analyzing URL...
+
+            </div>
+
+        </form>
+
+
+        <!-- SAFE TEST URL -->
+
+        <div class="test-url">
+
+            <p>
+                <strong>Safe test URL:</strong>
+            </p>
+
+            <button
+                type="button"
+                onclick="useExampleURL()">
+
+                Use https://example.com
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+
+    <div class="result-card">
+
+        <h2>
+            ⚙️ How It Works
+        </h2>
+
+        <p>
+            <strong>1.</strong>
+            Enter a URL.
+        </p>
+
+        <p>
+            <strong>2.</strong>
+            The system validates the URL.
+        </p>
+
+        <p>
+            <strong>3.</strong>
+            URL characteristics are analyzed.
+        </p>
+
+        <p>
+            <strong>4.</strong>
+            Machine learning analyzes URL patterns.
+        </p>
+
+        <p>
+            <strong>5.</strong>
+            Both results are combined.
+        </p>
+
+        <p>
+            <strong>6.</strong>
+            A final risk score is generated.
+        </p>
+
+    </div>
+
+
+    <!-- ================= DETECTION FEATURES ================= -->
+
+    <div class="result-card">
+
+        <h2>
+            🛡️ Detection Features
+        </h2>
+
+        <div class="feature-grid">
+
+            <div class="feature-box">
+                🔒 HTTPS Check
+            </div>
+
+            <div class="feature-box">
+                📏 URL Length
+            </div>
+
+            <div class="feature-box">
+                🌐 IP Address
+            </div>
+
+            <div class="feature-box">
+                🔗 Subdomain Analysis
+            </div>
+
+            <div class="feature-box">
+                🔑 Suspicious Keywords
+            </div>
+
+            <div class="feature-box">
+                ➖ Domain Hyphen
+            </div>
+
+            <div class="feature-box">
+                📁 File Extension
+            </div>
+
+            <div class="feature-box">
+                🤖 Machine Learning
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= SAFETY NOTICE ================= -->
+
+    <div class="safe-message">
+
+        <h2>
+            ⚠️ Safety Notice
+        </h2>
+
+        <p>
+            This project is intended for educational
+            and demonstration purposes.
+        </p>
+
+        <p>
+            A "Likely Safe" result does not guarantee
+            that a website is completely safe.
+        </p>
+
+    </div>
+
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='script.js') }}">
+</script>
+
+</body>
+
+</html>

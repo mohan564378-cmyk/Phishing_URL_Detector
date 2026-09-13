@@ -1,0 +1,831 @@
+/* ==========================================
+   GLOBAL RESET
+========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   BODY
+========================================== */
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #222;
+    line-height: 1.6;
+}
+
+
+/* ==========================================
+   NAVIGATION BAR
+========================================== */
+
+.navbar {
+    width: 100%;
+    background: #172554;
+    color: white;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 16px 30px;
+
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+.nav-title {
+    font-size: 21px;
+    font-weight: bold;
+}
+
+
+.nav-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+
+    padding: 9px 13px;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    transition: 0.3s;
+}
+
+
+.nav-links a:hover {
+    background: #2563eb;
+}
+
+
+/* ==========================================
+   MAIN CONTAINER
+========================================== */
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+
+    margin: 35px auto;
+
+    padding-bottom: 40px;
+}
+
+
+/* ==========================================
+   HERO SECTION
+========================================== */
+
+.hero {
+    text-align: center;
+
+    background: white;
+
+    padding: 40px 25px;
+
+    border-radius: 14px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+.hero h1 {
+    font-size: 34px;
+
+    margin-bottom: 12px;
+
+    color: #172554;
+}
+
+
+.hero p {
+    font-size: 17px;
+
+    color: #555;
+}
+
+
+/* ==========================================
+   HEADINGS
+========================================== */
+
+h1 {
+    color: #172554;
+
+    margin-bottom: 10px;
+}
+
+
+h2 {
+    color: #172554;
+
+    margin-bottom: 15px;
+}
+
+
+h3 {
+    color: #333;
+
+    margin-bottom: 10px;
+}
+
+
+p {
+    margin-bottom: 10px;
+}
+
+
+/* ==========================================
+   SCANNER CARD
+========================================== */
+
+.scanner-card {
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 14px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+    text-align: center;
+}
+
+
+.scanner-card h2 {
+    font-size: 27px;
+}
+
+
+/* ==========================================
+   INPUT
+========================================== */
+
+input[type="text"] {
+    width: 100%;
+
+    padding: 15px;
+
+    margin-top: 15px;
+
+    margin-bottom: 15px;
+
+    border: 2px solid #d1d5db;
+
+    border-radius: 8px;
+
+    font-size: 16px;
+
+    outline: none;
+
+    transition: 0.3s;
+}
+
+
+input[type="text"]:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.25);
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+button {
+    background: #2563eb;
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 20px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    transition: 0.3s;
+
+    margin: 5px;
+}
+
+
+button:hover {
+    background: #1d4ed8;
+
+    transform: translateY(-1px);
+}
+
+
+button:disabled {
+    background: #9ca3af;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* ==========================================
+   TEST URL
+========================================== */
+
+.test-url {
+    margin-top: 20px;
+
+    padding: 15px;
+
+    background: #f1f5f9;
+
+    border-radius: 8px;
+}
+
+
+.test-url p {
+    margin-bottom: 5px;
+}
+
+
+.test-url button {
+    background: #475569;
+}
+
+
+.test-url button:hover {
+    background: #334155;
+}
+
+
+/* ==========================================
+   RESULT CARD
+========================================== */
+
+.result-card {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ==========================================
+   URL BOX
+========================================== */
+
+.url-box {
+    background: #e0f2fe;
+
+    border-left: 5px solid #0284c7;
+
+    padding: 20px;
+
+    border-radius: 8px;
+
+    margin-bottom: 25px;
+
+    word-break: break-all;
+}
+
+
+.url-box p {
+    margin-top: 8px;
+
+    font-family: monospace;
+
+    font-size: 15px;
+}
+
+
+/* ==========================================
+   STATUS ICON
+========================================== */
+
+.status-icon {
+    font-size: 55px;
+
+    text-align: center;
+
+    margin-bottom: 5px;
+}
+
+
+/* ==========================================
+   STATUS COLORS
+========================================== */
+
+.safe {
+    color: #15803d;
+
+    text-align: center;
+
+    font-size: 28px;
+}
+
+
+.suspicious {
+    color: #d97706;
+
+    text-align: center;
+
+    font-size: 28px;
+}
+
+
+.danger {
+    color: #dc2626;
+
+    text-align: center;
+
+    font-size: 28px;
+}
+
+
+/* ==========================================
+   RISK SCORE
+========================================== */
+
+.risk-score {
+    font-size: 38px;
+
+    font-weight: bold;
+
+    text-align: center;
+
+    margin: 15px 0;
+
+    color: #172554;
+}
+
+
+/* ==========================================
+   RISK BAR
+========================================== */
+
+.risk-bar {
+    width: 100%;
+
+    height: 20px;
+
+    background: #e5e7eb;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin: 15px 0 25px;
+}
+
+
+.risk-fill {
+    height: 100%;
+
+    background: #ef4444;
+
+    border-radius: 20px;
+
+    transition: width 0.5s ease;
+}
+
+
+/* ==========================================
+   MESSAGES
+========================================== */
+
+.safe-message {
+    background: #dcfce7;
+
+    border-left: 5px solid #16a34a;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+
+.suspicious-message {
+    background: #fef3c7;
+
+    border-left: 5px solid #f59e0b;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+
+.danger-message {
+    background: #fee2e2;
+
+    border-left: 5px solid #dc2626;
+
+    padding: 18px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+
+/* ==========================================
+   REASONS LIST
+========================================== */
+
+.reasons-list {
+    list-style: none;
+
+    padding: 0;
+}
+
+
+.reasons-list li {
+    background: #fff7ed;
+
+    border-left: 4px solid #f97316;
+
+    padding: 12px 15px;
+
+    margin-bottom: 10px;
+
+    border-radius: 6px;
+}
+
+
+/* ==========================================
+   FEATURE GRID
+========================================== */
+
+.feature-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+
+.feature-box {
+    background: #eff6ff;
+
+    border: 1px solid #bfdbfe;
+
+    padding: 18px;
+
+    border-radius: 9px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    color: #1e3a8a;
+}
+
+
+/* ==========================================
+   FEATURE TABLE
+========================================== */
+
+.feature-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    margin-top: 15px;
+
+    background: white;
+}
+
+
+.feature-table th {
+    background: #172554;
+
+    color: white;
+
+    padding: 13px;
+
+    text-align: left;
+}
+
+
+.feature-table td {
+    padding: 12px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    word-break: break-word;
+}
+
+
+.feature-table tr:hover {
+    background: #f8fafc;
+}
+
+
+.history-url {
+    max-width: 350px;
+
+    word-break: break-all;
+}
+
+
+/* ==========================================
+   RESULT BUTTONS
+========================================== */
+
+.result-buttons {
+    display: flex;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    margin-top: 25px;
+}
+
+
+.result-buttons a {
+    text-decoration: none;
+}
+
+
+/* ==========================================
+   DASHBOARD STATISTICS
+========================================== */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 20px;
+
+    margin: 25px 0;
+}
+
+
+.stat-card {
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 14px;
+
+    text-align: center;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+.stat-card h2 {
+    font-size: 35px;
+
+    margin-bottom: 5px;
+}
+
+
+.stat-card h3 {
+    margin-bottom: 10px;
+}
+
+
+.stat-number {
+    font-size: 35px;
+
+    font-weight: bold;
+
+    color: #172554;
+}
+
+
+.stat-card p {
+    font-weight: bold;
+
+    margin-top: 5px;
+}
+
+
+.safe-card {
+    border-top: 5px solid #16a34a;
+}
+
+
+.suspicious-card {
+    border-top: 5px solid #f59e0b;
+}
+
+
+.danger-card {
+    border-top: 5px solid #dc2626;
+}
+
+
+/* ==========================================
+   CHART
+========================================== */
+
+.chart-card {
+    max-width: 650px;
+
+    margin-left: auto;
+
+    margin-right: auto;
+}
+
+
+.chart-card canvas {
+    max-height: 400px;
+}
+
+
+/* ==========================================
+   LOADING MESSAGE
+========================================== */
+
+.loading-message {
+    display: none;
+
+    margin-top: 15px;
+
+    padding: 12px;
+
+    background: #dbeafe;
+
+    color: #1e40af;
+
+    border-radius: 7px;
+
+    font-weight: bold;
+}
+
+
+/* ==========================================
+   LINKS
+========================================== */
+
+a {
+    color: #2563eb;
+}
+
+
+a:hover {
+    color: #1d4ed8;
+}
+
+
+/* ==========================================
+   MOBILE RESPONSIVE
+========================================== */
+
+@media (max-width: 900px) {
+
+    .feature-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .stats-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+/* ==========================================
+   SMALL MOBILE
+========================================== */
+
+@media (max-width: 650px) {
+
+    .navbar {
+        flex-direction: column;
+
+        gap: 15px;
+
+        padding: 15px;
+    }
+
+
+    .nav-title {
+        font-size: 18px;
+
+        text-align: center;
+    }
+
+
+    .nav-links {
+        flex-wrap: wrap;
+
+        justify-content: center;
+    }
+
+
+    .nav-links a {
+        font-size: 13px;
+
+        padding: 7px 9px;
+    }
+
+
+    .container {
+        width: 94%;
+
+        margin-top: 20px;
+    }
+
+
+    .hero {
+        padding: 25px 15px;
+    }
+
+
+    .hero h1 {
+        font-size: 25px;
+    }
+
+
+    .scanner-card,
+    .result-card {
+        padding: 20px;
+    }
+
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .feature-table {
+        display: block;
+
+        overflow-x: auto;
+
+        white-space: nowrap;
+    }
+
+
+    .result-buttons {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+
+    .result-buttons button {
+        width: calc(100% - 10px);
+    }
+
+
+    button {
+        width: auto;
+    }
+
+
+    .risk-score {
+        font-size: 32px;
+    }
+
+}

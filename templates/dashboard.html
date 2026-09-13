@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Security Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+    <div class="nav-title">
+        🔐 Phishing URL Detector
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">
+            🏠 Home
+        </a>
+
+        <a href="/">
+            🔍 Scanner
+        </a>
+
+        <a href="/history">
+            📋 History
+        </a>
+
+        <a href="/dashboard">
+            📊 Dashboard
+        </a>
+
+        <a href="/about">
+            ℹ️ About
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+    <h1>
+        📊 Security Dashboard
+    </h1>
+
+    <p>
+        Overview of URL scan results
+    </p>
+
+
+    <!-- ================= STATISTICS ================= -->
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <h2>
+                🔢
+            </h2>
+
+            <h3>
+                Total Scans
+            </h3>
+
+            <div class="stat-number">
+                {{ total }}
+            </div>
+
+        </div>
+
+
+        <div class="stat-card safe-card">
+
+            <h2>
+                🟢
+            </h2>
+
+            <h3>
+                Likely Safe
+            </h3>
+
+            <div class="stat-number">
+                {{ safe }}
+            </div>
+
+            <p>
+                {{ safe_percentage }}%
+            </p>
+
+        </div>
+
+
+        <div class="stat-card suspicious-card">
+
+            <h2>
+                🟠
+            </h2>
+
+            <h3>
+                Suspicious
+            </h3>
+
+            <div class="stat-number">
+                {{ suspicious }}
+            </div>
+
+            <p>
+                {{ suspicious_percentage }}%
+            </p>
+
+        </div>
+
+
+        <div class="stat-card danger-card">
+
+            <h2>
+                🔴
+            </h2>
+
+            <h3>
+                Likely Phishing
+            </h3>
+
+            <div class="stat-number">
+                {{ phishing }}
+            </div>
+
+            <p>
+                {{ phishing_percentage }}%
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ================= CHART ================= -->
+
+    <div class="result-card chart-card">
+
+        <h2>
+            📈 Scan Result Distribution
+        </h2>
+
+        <canvas id="scanChart"></canvas>
+
+    </div>
+
+
+    <!-- ================= SUMMARY ================= -->
+
+    <div class="result-card">
+
+        <h2>
+            🛡️ Detection Summary
+        </h2>
+
+        <p>
+            🟢 Likely Safe:
+            {{ safe }} scans
+            ({{ safe_percentage }}%)
+        </p>
+
+        <p>
+            🟠 Suspicious:
+            {{ suspicious }} scans
+            ({{ suspicious_percentage }}%)
+        </p>
+
+        <p>
+            🔴 Likely Phishing:
+            {{ phishing }} scans
+            ({{ phishing_percentage }}%)
+        </p>
+
+    </div>
+
+
+    <!-- ================= BUTTONS ================= -->
+
+    <div class="result-buttons">
+
+        <a href="/">
+
+            <button type="button">
+                🔍 Scan URL
+            </button>
+
+        </a>
+
+
+        <a href="/history">
+
+            <button type="button">
+                📋 Scan History
+            </button>
+
+        </a>
+
+
+        <a href="/about">
+
+            <button type="button">
+                ℹ️ About Project
+            </button>
+
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<!-- ================= CHART SCRIPT ================= -->
+
+<script>
+
+const ctx =
+    document.getElementById("scanChart");
+
+
+new Chart(ctx, {
+
+    type: "doughnut",
+
+    data: {
+
+        labels: [
+            "Likely Safe",
+            "Suspicious",
+            "Likely Phishing"
+        ],
+
+        datasets: [{
+
+            data: [
+                {{ safe }},
+                {{ suspicious }},
+                {{ phishing }}
+            ]
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+
+                position: "bottom"
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+
+
+</body>
+
+</html>
