@@ -1,229 +1,91 @@
-# ==========================================
-# PHISHING URL DETECTION SYSTEM
-# Flask + Machine Learning + MySQL
-# ==========================================
-
 import os
 import re
 import joblib
-import mysql.connector
+import psycopg2
 
-from flask import Flask, render_template, request
-
-
-# ==========================================
-# FLASK APP
-# ==========================================
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-
-# ==========================================
-# LOAD MACHINE LEARNING MODEL
-# ==========================================
+# =========================================================
+# LOAD ML MODEL
+# =========================================================
 
 model = joblib.load("model.pkl")
 vectorizer = joblib.load("vectorizer.pkl")
 
 
-# ==========================================
-# MYSQL CONFIGURATION
-# ==========================================
+# =========================================================
+# DATABASE CONNECTION - POSTGRESQL
+# =========================================================
 
-MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
-MYSQL_USER = os.getenv("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "ananya007")
-MYSQL_DATABASE = os.getenv(
-    "MYSQL_DATABASE",
-    "phishing_detector"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-
-# ==========================================
-# MYSQL CONNECTION
-# ==========================================
 
 def get_db_connection():
+    if not DATABASE_URL:
+        print("DATABASE_URL is not set.")
+        return None
 
     try:
+        connection = psycopg2.connect(DATABASE_URL)
+        return connection
 
-        db = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USER,
-            password=MYSQL_PASSWORD,
-            database=MYSQL_DATABASE
-        )
-
-        return db
-
-    except Exception as error:
-
-        print("Database Connection Error:", error)
-
+    except Exception as e:
+        print("Database Connection Error:", e)
         return None
 
 
-# ==========================================
-# URL ANALYSIS
-# ==========================================
+# =========================================================
+# URL RULE-BASED ANALYSIS
+# =========================================================
 
 def analyze_url(url):
 
     score = 0
-
     reasons = []
 
-    features = []
+    url_lower = url.lower()
 
-
-    # --------------------------------------
-    # HTTPS CHECK
-    # --------------------------------------
-
-    if url.startswith("https://"):
-
-        features.append(
-            ("HTTPS", "Present", "Low Risk")
-        )
-
-    else:
-
+    # HTTPS check
+    if not url_lower.startswith("https://"):
         score += 15
+        reasons.append("URL does not use HTTPS")
 
-        reasons.append(
-            "URL does not use HTTPS."
-        )
-
-        features.append(
-            ("HTTPS", "Not Present", "Risk")
-        )
-
-
-    # --------------------------------------
-    # URL LENGTH
-    # --------------------------------------
-
+    # URL length
     if len(url) > 100:
-
         score += 15
+        reasons.append("URL is unusually long")
 
-        reasons.append(
-            "URL is unusually long."
-        )
-
-        features.append(
-            ("URL Length", str(len(url)), "Risk")
-        )
-
-    else:
-
-        features.append(
-            ("URL Length", str(len(url)), "Normal")
-        )
-
-
-    # --------------------------------------
-    # @ SYMBOL
-    # --------------------------------------
-
+    # @ symbol
     if "@" in url:
-
         score += 20
+        reasons.append("URL contains @ symbol")
 
-        reasons.append(
-            "URL contains an @ symbol."
-        )
-
-        features.append(
-            ("@ Symbol", "Detected", "Risk")
-        )
-
-    else:
-
-        features.append(
-            ("@ Symbol", "Not Detected", "Normal")
-        )
-
-
-    # --------------------------------------
-    # EXTRACT HOSTNAME
-    # --------------------------------------
-
-    hostname = ""
-
+    # Extract hostname
     try:
-
-        clean_url = url.replace(
-            "https://", ""
-        ).replace(
-            "http://", ""
-        )
-
-        hostname = clean_url.split("/")[0]
-        hostname = hostname.split("@")[-1]
-        hostname = hostname.split(":")[0]
-
+        hostname = url.split("://", 1)[1].split("/", 1)[0]
+        hostname = hostname.split("@")[-1].split(":")[0]
     except Exception:
-
         hostname = ""
 
-
-    # --------------------------------------
-    # IP ADDRESS CHECK
-    # --------------------------------------
-
-    ip_pattern = (
-        r"^(?:\d{1,3}\.){3}\d{1,3}$"
-    )
+    # IP address detection
+    ip_pattern = r"^\d{1,3}(\.\d{1,3}){3}$"
 
     if re.match(ip_pattern, hostname):
-
         score += 25
-
         reasons.append(
-            "URL uses an IP address instead of a domain name."
+            "URL uses an IP address instead of a domain name"
         )
 
-        features.append(
-            ("IP Address", "Detected", "Risk")
-        )
-
-    else:
-
-        features.append(
-            ("IP Address", "Not Detected", "Normal")
-        )
-
-
-    # --------------------------------------
-    # SUBDOMAIN CHECK
-    # --------------------------------------
-
-    parts = hostname.split(".")
-
-    if len(parts) >= 4:
-
+    # Many subdomains
+    if hostname.count(".") >= 4:
         score += 10
-
         reasons.append(
-            "URL contains many subdomains."
+            "URL contains many subdomains"
         )
 
-        features.append(
-            ("Subdomains", str(len(parts) - 2), "Risk")
-        )
-
-    else:
-
-        features.append(
-            ("Subdomains", str(max(0, len(parts) - 2)), "Normal")
-        )
-
-
-    # --------------------------------------
-    # SUSPICIOUS KEYWORDS
-    # --------------------------------------
-
+    # Suspicious keywords
     suspicious_keywords = [
         "login",
         "verify",
@@ -237,70 +99,30 @@ def analyze_url(url):
 
     found_keywords = []
 
-    lower_url = url.lower()
-
     for keyword in suspicious_keywords:
 
-        if keyword in lower_url:
-
+        if keyword in url_lower:
             found_keywords.append(keyword)
-
 
     if found_keywords:
 
         score += 10
 
         reasons.append(
-            "Suspicious keywords detected: "
+            "Suspicious keyword detected: "
             + ", ".join(found_keywords)
         )
 
-        features.append(
-            (
-                "Suspicious Keywords",
-                ", ".join(found_keywords),
-                "Risk"
-            )
-        )
-
-    else:
-
-        features.append(
-            (
-                "Suspicious Keywords",
-                "None",
-                "Normal"
-            )
-        )
-
-
-    # --------------------------------------
-    # HYPHEN CHECK
-    # --------------------------------------
-
+    # Hyphen in hostname
     if "-" in hostname:
 
         score += 5
 
         reasons.append(
-            "Domain contains a hyphen."
+            "Domain contains a hyphen"
         )
 
-        features.append(
-            ("Hyphen", "Detected", "Risk")
-        )
-
-    else:
-
-        features.append(
-            ("Hyphen", "Not Detected", "Normal")
-        )
-
-
-    # --------------------------------------
-    # SUSPICIOUS FILE EXTENSIONS
-    # --------------------------------------
-
+    # Suspicious file extensions
     suspicious_extensions = [
         ".exe",
         ".scr",
@@ -308,56 +130,53 @@ def analyze_url(url):
         ".bat"
     ]
 
-    found_extension = None
-
     for extension in suspicious_extensions:
 
-        if lower_url.endswith(extension):
+        if url_lower.endswith(extension):
 
-            found_extension = extension
+            score += 15
+
+            reasons.append(
+                "Suspicious file extension detected: "
+                + extension
+            )
+
             break
 
+    # Maximum score
+    score = min(score, 100)
 
-    if found_extension:
+    return score, reasons
 
-        score += 15
 
-        reasons.append(
-            "URL ends with a suspicious file extension."
-        )
+# =========================================================
+# MACHINE LEARNING PREDICTION
+# =========================================================
 
-        features.append(
-            (
-                "File Extension",
-                found_extension,
-                "Risk"
-            )
-        )
+def ml_prediction(url):
+
+    url_vector = vectorizer.transform([url])
+
+    prediction = model.predict(url_vector)[0]
+
+    probabilities = model.predict_proba(url_vector)[0]
+
+    confidence = max(probabilities) * 100
+
+    if prediction == "phishing":
+
+        ml_score = confidence
 
     else:
 
-        features.append(
-            (
-                "File Extension",
-                "None",
-                "Normal"
-            )
-        )
+        ml_score = 100 - confidence
+
+    return ml_score
 
 
-    # --------------------------------------
-    # LIMIT RULE SCORE
-    # --------------------------------------
-
-    score = min(score, 100)
-
-
-    return score, reasons, features
-
-
-# ==========================================
+# =========================================================
 # HOME PAGE
-# ==========================================
+# =========================================================
 
 @app.route("/")
 def home():
@@ -365,9 +184,9 @@ def home():
     return render_template("index.html")
 
 
-# ==========================================
+# =========================================================
 # ABOUT PAGE
-# ==========================================
+# =========================================================
 
 @app.route("/about")
 def about():
@@ -375,202 +194,136 @@ def about():
     return render_template("about.html")
 
 
-# ==========================================
+# =========================================================
 # SCAN URL
-# ==========================================
+# =========================================================
 
 @app.route("/scan", methods=["POST"])
 def scan():
 
     url = request.form.get("url", "").strip()
 
-
+    # Empty URL
     if not url:
 
-        return render_template(
-            "result.html",
-            url="",
-            risk_score=0,
-            status="Likely Safe",
-            reasons=["No URL was entered."],
-            features=[]
+        return redirect(
+            url_for("home")
         )
 
+    # Rule-based analysis
+    rule_score, reasons = analyze_url(url)
 
-    # --------------------------------------
-    # RULE-BASED ANALYSIS
-    # --------------------------------------
+    # Machine learning prediction
+    ml_score = ml_prediction(url)
 
-    rule_score, reasons, features = analyze_url(url)
-
-
-    # --------------------------------------
-    # MACHINE LEARNING PREDICTION
-    # --------------------------------------
-
-    try:
-
-        url_vector = vectorizer.transform([url])
-
-        prediction = model.predict(url_vector)[0]
-
-        probabilities = model.predict_proba(
-            url_vector
-        )[0]
-
-        confidence = max(probabilities) * 100
-
-
-        if prediction == "phishing":
-
-            ml_score = confidence
-
-        else:
-
-            ml_score = 100 - confidence
-
-
-    except Exception as error:
-
-        print("ML Prediction Error:", error)
-
-        prediction = "unknown"
-
-        ml_score = 50
-
-
-    # --------------------------------------
-    # HYBRID RISK SCORE
-    # --------------------------------------
-
-    final_score = (
+    # Combined score
+    risk_score = int(
         (rule_score * 0.40)
         +
         (ml_score * 0.60)
     )
 
-
-    final_score = round(
-        min(max(final_score, 0), 100)
+    # Keep score between 0 and 100
+    risk_score = max(
+        0,
+        min(risk_score, 100)
     )
 
+    # Result classification
+    if risk_score >= 70:
 
-    # --------------------------------------
-    # CLASSIFICATION
-    # --------------------------------------
+        result = "Likely Phishing"
 
-    if final_score >= 70:
+    elif risk_score >= 30:
 
-        status = "Likely Phishing"
-
-
-    elif final_score >= 30:
-
-        status = "Suspicious"
-
+        result = "Suspicious"
 
     else:
 
-        status = "Likely Safe"
+        result = "Likely Safe"
 
+    # =====================================================
+    # SAVE SCAN TO POSTGRESQL
+    # =====================================================
 
-    # --------------------------------------
-    # ADD ML REASON
-    # --------------------------------------
+    connection = get_db_connection()
 
-    if prediction == "phishing":
-
-        reasons.append(
-            "Machine learning model detected phishing-like URL patterns."
-        )
-
-    elif prediction == "safe":
-
-        reasons.append(
-            "Machine learning model found patterns associated with safer URLs."
-        )
-
-
-    # --------------------------------------
-    # SAVE TO MYSQL
-    # --------------------------------------
-
-    db = get_db_connection()
-
-
-    if db:
+    if connection:
 
         try:
 
-            cursor = db.cursor()
+            cursor = connection.cursor()
 
-            query = """
+            cursor.execute(
+                """
                 INSERT INTO scan_history
                 (url, risk_score, result)
                 VALUES (%s, %s, %s)
-            """
-
-            values = (
-                url,
-                final_score,
-                status
+                """,
+                (
+                    url,
+                    risk_score,
+                    result
+                )
             )
 
-            cursor.execute(
-                query,
-                values
-            )
-
-            db.commit()
+            connection.commit()
 
             cursor.close()
-
-            db.close()
-
-        except Exception as error:
+            connection.close()
 
             print(
-                "Database Insert Error:",
-                error
+                "Scan saved successfully."
+            )
+
+        except Exception as e:
+
+            print(
+                "Error saving scan:",
+                e
             )
 
             try:
-                db.close()
-            except:
+
+                connection.rollback()
+                connection.close()
+
+            except Exception:
                 pass
 
+    else:
 
-    # --------------------------------------
-    # SHOW RESULT
-    # --------------------------------------
+        print(
+            "Database not connected. "
+            "Scan not saved."
+        )
 
+    # Show result page
     return render_template(
         "result.html",
         url=url,
-        risk_score=final_score,
-        status=status,
-        reasons=reasons,
-        features=features
+        risk_score=risk_score,
+        result=result,
+        reasons=reasons
     )
 
 
-# ==========================================
-# HISTORY PAGE
-# ==========================================
+# =========================================================
+# SCAN HISTORY
+# =========================================================
 
 @app.route("/history")
 def history():
 
     scans = []
 
-    db = get_db_connection()
+    connection = get_db_connection()
 
-
-    if db:
+    if connection:
 
         try:
 
-            cursor = db.cursor()
+            cursor = connection.cursor()
 
             cursor.execute(
                 """
@@ -588,21 +341,19 @@ def history():
             scans = cursor.fetchall()
 
             cursor.close()
+            connection.close()
 
-            db.close()
-
-        except Exception as error:
+        except Exception as e:
 
             print(
-                "History Error:",
-                error
+                "History database error:",
+                e
             )
 
             try:
-                db.close()
-            except:
+                connection.close()
+            except Exception:
                 pass
-
 
     return render_template(
         "history.html",
@@ -610,9 +361,9 @@ def history():
     )
 
 
-# ==========================================
+# =========================================================
 # CLEAR HISTORY
-# ==========================================
+# =========================================================
 
 @app.route(
     "/clear-history",
@@ -620,52 +371,54 @@ def history():
 )
 def clear_history():
 
-    db = get_db_connection()
+    connection = get_db_connection()
 
-
-    if db:
+    if connection:
 
         try:
 
-            cursor = db.cursor()
+            cursor = connection.cursor()
 
             cursor.execute(
-                "TRUNCATE TABLE scan_history"
+                """
+                TRUNCATE TABLE
+                scan_history
+                RESTART IDENTITY
+                """
             )
 
-            db.commit()
+            connection.commit()
 
             cursor.close()
-
-            db.close()
-
-            return render_template(
-                "history.html",
-                scans=[]
-            )
-
-        except Exception as error:
+            connection.close()
 
             print(
-                "Clear History Error:",
-                error
+                "Scan history cleared."
+            )
+
+        except Exception as e:
+
+            print(
+                "Error clearing history:",
+                e
             )
 
             try:
-                db.close()
-            except:
+
+                connection.rollback()
+                connection.close()
+
+            except Exception:
                 pass
 
-
-    return render_template(
-        "history.html",
-        scans=[]
+    return redirect(
+        url_for("history")
     )
 
 
-# ==========================================
+# =========================================================
 # DASHBOARD
-# ==========================================
+# =========================================================
 
 @app.route("/dashboard")
 def dashboard():
@@ -675,27 +428,25 @@ def dashboard():
     suspicious = 0
     phishing = 0
 
-    db = get_db_connection()
+    connection = get_db_connection()
 
-
-    if db:
+    if connection:
 
         try:
 
-            cursor = db.cursor()
-
+            cursor = connection.cursor()
 
             # Total scans
-
             cursor.execute(
-                "SELECT COUNT(*) FROM scan_history"
+                """
+                SELECT COUNT(*)
+                FROM scan_history
+                """
             )
 
             total = cursor.fetchone()[0]
 
-
             # Safe scans
-
             cursor.execute(
                 """
                 SELECT COUNT(*)
@@ -706,9 +457,7 @@ def dashboard():
 
             safe = cursor.fetchone()[0]
 
-
             # Suspicious scans
-
             cursor.execute(
                 """
                 SELECT COUNT(*)
@@ -719,9 +468,7 @@ def dashboard():
 
             suspicious = cursor.fetchone()[0]
 
-
             # Phishing scans
-
             cursor.execute(
                 """
                 SELECT COUNT(*)
@@ -732,43 +479,39 @@ def dashboard():
 
             phishing = cursor.fetchone()[0]
 
-
             cursor.close()
+            connection.close()
 
-            db.close()
-
-
-        except Exception as error:
+        except Exception as e:
 
             print(
-                "Dashboard Error:",
-                error
+                "Dashboard database error:",
+                e
             )
 
             try:
-                db.close()
-            except:
+                connection.close()
+            except Exception:
                 pass
 
-
-    # --------------------------------------
+    # =====================================================
     # PERCENTAGES
-    # --------------------------------------
+    # =====================================================
 
     if total > 0:
 
         safe_percentage = round(
-            safe / total * 100,
+            (safe / total) * 100,
             1
         )
 
         suspicious_percentage = round(
-            suspicious / total * 100,
+            (suspicious / total) * 100,
             1
         )
 
         phishing_percentage = round(
-            phishing / total * 100,
+            (phishing / total) * 100,
             1
         )
 
@@ -777,7 +520,6 @@ def dashboard():
         safe_percentage = 0
         suspicious_percentage = 0
         phishing_percentage = 0
-
 
     return render_template(
         "dashboard.html",
@@ -791,21 +533,29 @@ def dashboard():
     )
 
 
-# ==========================================
-# ERROR HANDLER
-# ==========================================
+# =========================================================
+# 404 ERROR
+# =========================================================
 
 @app.errorhandler(404)
 def page_not_found(error):
 
-    return render_template(
-        "error.html"
-    ), 404
+    return """
+    <h1>404 - Page Not Found</h1>
+
+    <p>
+        The page you requested does not exist.
+    </p>
+
+    <a href="/">
+        Go Home
+    </a>
+    """, 404
 
 
-# ==========================================
+# =========================================================
 # RUN APPLICATION
-# ==========================================
+# =========================================================
 
 if __name__ == "__main__":
 
